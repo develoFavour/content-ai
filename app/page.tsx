@@ -78,9 +78,9 @@ export default function LandingPage() {
 
 			{/* Navigation */}
 			<Navigation />
-			{/* Enhanced Hero Section */}
+			{/*  Hero Section */}
 			<HeroSection />
-			{/* Enhanced Features Section */}
+			{/*  Features Section */}
 			<FeatureSection />
 
 			{/* Unique CTA Section - Completely Different Design */}

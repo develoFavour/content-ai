@@ -8,43 +8,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Brain, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Brain, Mail, Lock, ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/auth-context";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SignInPage() {
 	const [formData, setFormData] = useState({
 		email: "",
 		password: "",
 	});
-	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
+	const { signIn, isLoading } = useAuth();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsLoading(true);
+		setError(null);
 
 		try {
-			const response = await fetch("/api/auth/signin", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(formData),
-			});
+			const { error } = await signIn(formData.email, formData.password);
 
-			if (response.ok) {
-				router.push("/dashboard");
+			if (error) {
+				setError(error.message);
+				return;
 			}
-		} catch (error) {
-			console.error("Signin error:", error);
-		} finally {
-			setIsLoading(false);
+
+			router.push("/dashboard");
+		} catch (err) {
+			console.error("Signin error:", err);
+			setError("An unexpected error occurred");
 		}
 	};
 
 	return (
-		<div className="min-h-screen bg-black text-white relative overflow-hidden">
+		<div className="min-h-screen bg-gray-950 text-white relative overflow-hidden">
 			{/* Background Effects */}
-			<div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20" />
+			<div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black" />
 			<div className="absolute inset-0">
 				{[...Array(30)].map((_, i) => (
 					<div
@@ -72,7 +73,7 @@ export default function SignInPage() {
 
 					<Card className="bg-white/5 border-white/10 backdrop-blur-xl">
 						<CardHeader className="text-center pb-8">
-							<div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+							<div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
 								<Brain className="w-6 h-6 text-white" />
 							</div>
 							<CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
@@ -80,6 +81,16 @@ export default function SignInPage() {
 						</CardHeader>
 
 						<CardContent className="space-y-6">
+							{error && (
+								<Alert
+									variant="destructive"
+									className="bg-red-900/20 border-red-900 text-red-300"
+								>
+									<AlertCircle className="h-4 w-4" />
+									<AlertDescription>{error}</AlertDescription>
+								</Alert>
+							)}
+
 							<form onSubmit={handleSubmit} className="space-y-4">
 								<div className="space-y-2">
 									<Label htmlFor="email" className="text-white">
@@ -131,7 +142,7 @@ export default function SignInPage() {
 									</label>
 									<Link
 										href="/forgot-password"
-										className="text-sm text-purple-400 hover:text-purple-300"
+										className="text-sm text-emerald-400 hover:text-emerald-300"
 									>
 										Forgot password?
 									</Link>
@@ -139,7 +150,7 @@ export default function SignInPage() {
 
 								<Button
 									type="submit"
-									className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white border-0 py-6"
+									className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white border-0 py-6"
 									disabled={isLoading}
 								>
 									{isLoading ? "Signing In..." : "Sign In"}
@@ -148,7 +159,7 @@ export default function SignInPage() {
 
 							<div className="relative">
 								<Separator className="bg-white/20" />
-								<span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black px-2 text-gray-400 text-sm">
+								<span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-950 px-2 text-gray-400 text-sm">
 									or
 								</span>
 							</div>
@@ -156,6 +167,10 @@ export default function SignInPage() {
 							<Button
 								variant="outline"
 								className="w-full border-white/20 text-white hover:bg-white/10 py-6"
+								onClick={() => {
+									// We'll implement social login later
+									setError("Google login will be implemented soon");
+								}}
 							>
 								Continue with Google
 							</Button>
@@ -164,7 +179,7 @@ export default function SignInPage() {
 								Don&apos;t have an account?{" "}
 								<Link
 									href="/signup"
-									className="text-purple-400 hover:text-purple-300"
+									className="text-emerald-400 hover:text-emerald-300"
 								>
 									Sign up
 								</Link>
