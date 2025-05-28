@@ -25,11 +25,11 @@ const HeroSection = () => {
 							Next-Gen AI Content Engine
 						</Badge>
 
-						<h1 className="text-6xl lg:text-8xl font-black leading-tight">
-							<span className="text-white">Create</span>
-							<br />
+						<h1 className="text-4xl lg:text-8xl font-black">
+							<span className="text-white pr-4">Create</span>
+							{/* <br /> */}
 							<span className="bg-gradient-to-r from-emerald-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
-								Legendary
+								Quality
 							</span>
 							<br />
 							<span className="text-white">Content</span>
@@ -54,14 +54,14 @@ const HeroSection = () => {
 							<Button
 								size="lg"
 								variant="outline"
-								className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white px-10 py-7 text-lg font-semibold group"
+								className="border-gray-700 bg-black text-gray-300 hover:bg-gray-800 hover:text-white px-10 py-7 text-lg font-semibold group"
 							>
 								<Play className="mr-3 w-5 h-5" />
 								See The Magic
 							</Button>
 						</div>
 
-						<div className="grid grid-cols-3 gap-8 pt-8">
+						<div className="grid grid-cols-3 gap-8 pt-8 bg-gray-900/90 rounded-3xl items-center pb-4">
 							<div className="text-center">
 								<div className="text-3xl font-bold text-emerald-400">50K+</div>
 								<div className="text-sm text-gray-500">Content Pieces</div>

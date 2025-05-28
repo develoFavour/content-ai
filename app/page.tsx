@@ -7,6 +7,7 @@ import { useDataContext } from "@/app/context/data-context";
 import FeatureSection from "@/components/pages/FeatureSection";
 import Cta from "@/components/pages/Cta";
 import Footer from "@/components/pages/Footer";
+import HeroSection from "@/components/pages/HeroSection";
 
 export default function LandingPage() {
 	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -78,7 +79,7 @@ export default function LandingPage() {
 			{/* Navigation */}
 			<Navigation />
 			{/* Enhanced Hero Section */}
-
+			<HeroSection />
 			{/* Enhanced Features Section */}
 			<FeatureSection />
 
