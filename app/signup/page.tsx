@@ -218,10 +218,9 @@ export default function SignUpPage() {
 
 							<Button
 								variant="outline"
-								className="w-full border-white/20 text-white hover:bg-white/10 py-6"
-								disabled
+								className="w-full border-white/20 bg-white/10 text-white hover:bg-black/10 py-6 hover:text-white"
 							>
-								Continue with Google (Coming Soon)
+								Continue with Google
 							</Button>
 
 							<p className="text-center text-gray-400 text-sm">

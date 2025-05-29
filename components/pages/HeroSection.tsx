@@ -198,20 +198,22 @@ export default function HeroSection() {
 							<Link href="/signup">
 								<Button
 									size="lg"
-									className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white border-0 px-10 py-7 text-lg font-semibold group shadow-2xl shadow-emerald-500/25"
+									className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white w-full border-0 px-10 py-7 text-lg font-semibold group shadow-2xl shadow-emerald-500/25"
 								>
 									Launch Your Empire
 									<ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
 								</Button>
 							</Link>
-							<Button
-								size="lg"
-								variant="outline"
-								className="border-gray-700 bg-black text-gray-300 hover:bg-gray-800 hover:text-white px-10 py-7 text-lg font-semibold group"
-							>
-								<Play className="mr-3 w-5 h-5" />
-								See The Magic
-							</Button>
+							<Link href="/signin">
+								<Button
+									size="lg"
+									variant="outline"
+									className="border-gray-700 bg-black w-full text-gray-300 hover:bg-gray-800 hover:text-white px-10 py-7 text-lg font-semibold group"
+								>
+									<Play className="mr-3 w-5 h-5" />
+									See The Magic
+								</Button>
+							</Link>
 						</div>
 
 						<div className="grid grid-cols-3 gap-8 pt-8">

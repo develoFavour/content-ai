@@ -71,7 +71,7 @@ export default function LandingPage() {
 			{/* Footer */}
 			<Footer />
 
-			{/* CSS Animations */}
+			{/* Styles */}
 			<style jsx>{`
 				@keyframes grid-move {
 					0% {
