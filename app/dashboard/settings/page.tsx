@@ -110,7 +110,7 @@ export default function SettingsPage() {
 		setIsSaving(true);
 		try {
 			const { error } = await updateContentSettings({
-				tone: defaultTone as any,
+				tone: defaultTone as "professional" | "casual" | "funny",
 				max_length: maxLength,
 			});
 
@@ -331,9 +331,6 @@ export default function SettingsPage() {
 										</option>
 										<option value="funny" className="bg-gray-900">
 											😄 Funny
-										</option>
-										<option value="persuasive" className="bg-gray-900">
-											🎯 Persuasive
 										</option>
 									</select>
 								</div>
