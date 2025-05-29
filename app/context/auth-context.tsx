@@ -102,10 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			setUser(session?.user ?? null);
 			setIsLoading(false);
 
-			// Handle redirects based on auth state and current path
-			if (event === "SIGNED_IN" && session) {
+			// Handle redirects and toasts based on auth state and current path
+			if (event === "SIGNED_IN" && session && !user) {
+				// Only show the toast if the user was not already signed in
 				toast.success("Successfully signed in!");
-				// Only redirect if we're on an auth page
+				// Redirect if we're on an auth page
 				if (
 					pathname === "/signin" ||
 					pathname === "/signup" ||
@@ -115,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				}
 			} else if (event === "SIGNED_OUT") {
 				toast.success("Successfully signed out!");
-				// Only redirect if we're on a protected page
+				// Redirect if we're on a protected page
 				if (pathname?.startsWith("/dashboard")) {
 					router.push("/");
 				}
@@ -129,7 +130,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			subscription.unsubscribe();
 		};
 	}, [router, pathname]);
-
 	const signUp = async (
 		email: string,
 		password: string,

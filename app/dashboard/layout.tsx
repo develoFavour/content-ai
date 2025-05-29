@@ -46,7 +46,7 @@ export default function DashboardLayout({
 				setIsCheckingAuth(false);
 			}
 		}
-	}, [user, session, isLoading, router]);
+	}, [session, isLoading, router]);
 
 	if (isLoading || isCheckingAuth) {
 		return (
