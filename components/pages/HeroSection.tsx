@@ -1,14 +1,168 @@
 "use client";
-import React from "react";
-import { Card, CardContent } from "../ui/card";
-import { ArrowRight, Badge, Brain, Play, Sparkles } from "lucide-react";
-import { contentTypes } from "@/constants/contents";
-import { useDataContext } from "@/app/context/data-context";
-import { Button } from "../ui/button";
-import Link from "next/link";
 
-const HeroSection = () => {
-	const { isVisible, activeCard } = useDataContext();
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	ArrowRight,
+	BookOpenText,
+	Brain,
+	Cpu,
+	Database,
+	Globe,
+	Layers,
+	Play,
+	Sparkles,
+	Target,
+} from "lucide-react";
+import Link from "next/link";
+import { useDataContext } from "@/app/context/data-context";
+import { ClientOnly } from "@/components/client-only";
+
+// Predefined static values instead of random ones
+const CONTENT_TYPES = [
+	{
+		icon: <BookOpenText />,
+		title: "Blog Posts",
+		desc: "SEO-optimized articles",
+		color: "from-emerald-400 to-teal-600",
+		angle: 0,
+		delay: 0,
+	},
+	{
+		icon: <Layers />,
+		title: "Social Media",
+		desc: "Viral-ready content",
+		color: "from-blue-400 to-indigo-600",
+		angle: 60,
+		delay: 0.5,
+	},
+	{
+		icon: <Globe />,
+		title: "Web Copy",
+		desc: "Converting landing pages",
+		color: "from-violet-400 to-purple-600",
+		angle: 120,
+		delay: 1,
+	},
+	{
+		icon: <Target />,
+		title: "Ad Campaigns",
+		desc: "High-converting ads",
+		color: "from-pink-400 to-rose-600",
+		angle: 180,
+		delay: 1.5,
+	},
+	{
+		icon: <Cpu />,
+		title: "Email Sequences",
+		desc: "Automated nurturing",
+		color: "from-orange-400 to-red-600",
+		angle: 240,
+		delay: 2,
+	},
+	{
+		icon: <Database />,
+		title: "Product Descriptions",
+		desc: "Sales-driven copy",
+		color: "from-cyan-400 to-blue-600",
+		angle: 300,
+		delay: 2.5,
+	},
+];
+
+function OrbitingCards() {
+	const { activeCard } = useDataContext();
+
+	return (
+		<div className="relative w-full h-[600px]">
+			{/* Central Hub */}
+			<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/50 z-10">
+				<Brain className="w-12 h-12 text-white animate-pulse" />
+			</div>
+
+			{/* Orbiting Content Cards */}
+			{CONTENT_TYPES.map((content, index) => {
+				const angle = content.angle * (Math.PI / 180);
+				const radius = 200;
+				const x = Math.cos(angle) * radius;
+				const y = Math.sin(angle) * radius;
+				const isActive = activeCard === index;
+
+				return (
+					<Card
+						key={index}
+						className={`absolute w-48 h-32 transition-all duration-500 ${
+							isActive
+								? "bg-gradient-to-br from-gray-800 to-gray-900 border-emerald-500/50 shadow-2xl shadow-emerald-500/25 scale-110"
+								: "bg-gradient-to-br from-gray-900 to-black border-gray-800 hover:border-gray-700"
+						}`}
+						style={{
+							left: `calc(50% + ${x}px - 96px)`,
+							top: `calc(50% + ${y}px - 64px)`,
+							transform: `rotate(${isActive ? "0deg" : "3deg"})`,
+						}}
+					>
+						<CardContent className="p-4 h-full flex flex-col justify-between">
+							<div
+								className={`w-10 h-10 rounded-lg bg-gradient-to-r flex items-center justify-center mb-2`}
+							>
+								<div className="w-5 h-5 text-white">{content.icon}</div>
+							</div>
+							<div>
+								<h3 className="font-bold text-white text-sm mb-1">
+									{content.title}
+								</h3>
+								<p className="text-xs text-gray-400">{content.desc}</p>
+							</div>
+						</CardContent>
+					</Card>
+				);
+			})}
+
+			{/* Connecting Lines */}
+			<svg className="absolute inset-0 w-full h-full pointer-events-none">
+				{CONTENT_TYPES.map((content, index) => {
+					const angle = content.angle * (Math.PI / 180);
+					const radius = 200;
+					const x1 = 50 + Math.cos(angle) * 16;
+					const y1 = 50 + Math.sin(angle) * 16;
+					const x2 = 50 + Math.cos(angle) * (radius / 6);
+					const y2 = 50 + Math.sin(angle) * (radius / 6);
+
+					return (
+						<line
+							key={index}
+							x1={`${x1}%`}
+							y1={`${y1}%`}
+							x2={`${x2}%`}
+							y2={`${y2}%`}
+							stroke={activeCard === index ? "#10b981" : "#374151"}
+							strokeWidth="2"
+							className="transition-all duration-500"
+							opacity={activeCard === index ? "0.8" : "0.3"}
+						/>
+					);
+				})}
+			</svg>
+
+			{/* Floating Metrics */}
+			<div className="absolute top-4 right-4 bg-gray-900/80 backdrop-blur-xl rounded-lg p-3 border border-gray-800">
+				<div className="text-xs text-gray-400 mb-1">Generation Speed</div>
+				<div className="text-lg font-bold text-emerald-400">2.3s</div>
+			</div>
+
+			<div className="absolute bottom-4 left-4 bg-gray-900/80 backdrop-blur-xl rounded-lg p-3 border border-gray-800">
+				<div className="text-xs text-gray-400 mb-1">Quality Score</div>
+				<div className="text-lg font-bold text-blue-400">99.2%</div>
+			</div>
+		</div>
+	);
+}
+
+export default function HeroSection() {
+	const { isVisible } = useDataContext();
+
 	return (
 		<section className="relative z-10 px-6 lg:px-12 pt-12 pb-20">
 			<div className="max-w-7xl mx-auto">
@@ -24,7 +178,6 @@ const HeroSection = () => {
 							<Sparkles className="w-4 h-4 mr-2" />
 							Next-Gen AI Content Engine
 						</Badge>
-
 						<h1 className="text-4xl lg:text-8xl font-black">
 							<span className="text-white pr-4">Create</span>
 							{/* <br /> */}
@@ -61,7 +214,7 @@ const HeroSection = () => {
 							</Button>
 						</div>
 
-						<div className="grid grid-cols-3 gap-8 pt-8 bg-gray-900/90 rounded-3xl items-center pb-4">
+						<div className="grid grid-cols-3 gap-8 pt-8">
 							<div className="text-center">
 								<div className="text-3xl font-bold text-emerald-400">50K+</div>
 								<div className="text-sm text-gray-500">Content Pieces</div>
@@ -85,95 +238,12 @@ const HeroSection = () => {
 								: "translate-x-20 opacity-0"
 						}`}
 					>
-						<div className="relative w-full h-[600px]">
-							{/* Central Hub */}
-							<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/50 z-10">
-								<Brain className="w-12 h-12 text-white animate-pulse" />
-							</div>
-
-							{/* Orbiting Content Cards */}
-							{contentTypes.map((content, index) => {
-								const angle = index * 60 * (Math.PI / 180);
-								const radius = 200;
-								const x = Math.cos(angle) * radius;
-								const y = Math.sin(angle) * radius;
-								const isActive = activeCard === index;
-
-								return (
-									<Card
-										key={index}
-										className={`absolute w-48 h-32 transition-all duration-500 ${
-											isActive
-												? "bg-gradient-to-br from-gray-800 to-gray-900 border-emerald-500/50 shadow-2xl shadow-emerald-500/25 scale-110"
-												: "bg-gradient-to-br from-gray-900 to-black border-gray-800 hover:border-gray-700"
-										}`}
-										style={{
-											left: `calc(50% + ${x}px - 96px)`,
-											top: `calc(50% + ${y}px - 64px)`,
-											transform: `rotate(${isActive ? "0deg" : "3deg"})`,
-										}}
-									>
-										<CardContent className="p-4 h-full flex flex-col justify-between">
-											<div
-												className={`w-10 h-10 rounded-lg bg-gradient-to-r ${content.color} flex items-center justify-center mb-2`}
-											>
-												<content.icon className="w-5 h-5 text-white" />
-											</div>
-											<div>
-												<h3 className="font-bold text-white text-sm mb-1">
-													{content.title}
-												</h3>
-												<p className="text-xs text-gray-400">{content.desc}</p>
-											</div>
-										</CardContent>
-									</Card>
-								);
-							})}
-
-							{/* Connecting Lines */}
-							<svg className="absolute inset-0 w-full h-full pointer-events-none">
-								{contentTypes.map((_, index) => {
-									const angle = index * 60 * (Math.PI / 180);
-									const radius = 200;
-									const x1 = 50 + Math.cos(angle) * 16;
-									const y1 = 50 + Math.sin(angle) * 16;
-									const x2 = 50 + Math.cos(angle) * (radius / 6);
-									const y2 = 50 + Math.sin(angle) * (radius / 6);
-
-									return (
-										<line
-											key={index}
-											x1={`${x1}%`}
-											y1={`${y1}%`}
-											x2={`${x2}%`}
-											y2={`${y2}%`}
-											stroke={activeCard === index ? "#10b981" : "#374151"}
-											strokeWidth="2"
-											className="transition-all duration-500"
-											opacity={activeCard === index ? "0.8" : "0.3"}
-										/>
-									);
-								})}
-							</svg>
-
-							{/* Floating Metrics */}
-							<div className="absolute top-4 right-4 bg-gray-900/80 backdrop-blur-xl rounded-lg p-3 border border-gray-800">
-								<div className="text-xs text-gray-400 mb-1">
-									Generation Speed
-								</div>
-								<div className="text-lg font-bold text-emerald-400">2.3s</div>
-							</div>
-
-							<div className="absolute bottom-4 left-4 bg-gray-900/80 backdrop-blur-xl rounded-lg p-3 border border-gray-800">
-								<div className="text-xs text-gray-400 mb-1">Quality Score</div>
-								<div className="text-lg font-bold text-blue-400">99.2%</div>
-							</div>
-						</div>
+						<ClientOnly>
+							<OrbitingCards />
+						</ClientOnly>
 					</div>
 				</div>
 			</div>
 		</section>
 	);
-};
-
-export default HeroSection;
+}

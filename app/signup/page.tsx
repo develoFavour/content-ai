@@ -2,17 +2,17 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Brain, Mail, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { Brain, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/auth-context";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { FloatingParticles } from "@/components/floating-particles";
 
 export default function SignUpPage() {
 	const [formData, setFormData] = useState({
@@ -21,61 +21,64 @@ export default function SignUpPage() {
 		password: "",
 		confirmPassword: "",
 	});
-	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
-	const { signUp, isLoading } = useAuth();
+	const { signUp, isLoading, session } = useAuth();
+
+	// Check if user is already signed in and redirect
+	useEffect(() => {
+		if (session) {
+			console.log("SignUp - User already signed in, redirecting to dashboard");
+			router.push("/dashboard");
+		}
+	}, [session, router]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setError(null);
 
 		// Basic validation
 		if (formData.password !== formData.confirmPassword) {
-			setError("Passwords do not match");
 			return;
 		}
 
 		if (formData.password.length < 6) {
-			setError("Password must be at least 6 characters");
 			return;
 		}
 
 		try {
-			const { error } = await signUp(formData.email, formData.password);
+			const { error, data } = await signUp(
+				formData.email,
+				formData.password,
+				formData.name
+			);
 
-			if (error) {
-				setError(error.message);
-				return;
+			if (!error && data.user) {
+				// Redirect to verification page with email
+				router.push(
+					`/verify-email?email=${encodeURIComponent(formData.email)}`
+				);
 			}
-
-			// Store user profile data in Supabase
-			// This will be implemented later when we set up the database
-
-			// Redirect to verification page or dashboard
-			router.push("/dashboard");
 		} catch (err) {
 			console.error("Signup error:", err);
-			setError("An unexpected error occurred");
 		}
 	};
+
+	// Show loading if already signed in (will redirect)
+	if (session) {
+		return (
+			<div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+					<p className="text-gray-400">Redirecting to dashboard...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-950 text-white relative overflow-hidden">
 			{/* Background Effects */}
 			<div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-950 to-black" />
-			<div className="absolute inset-0">
-				{[...Array(30)].map((_, i) => (
-					<div
-						key={i}
-						className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
-						style={{
-							left: `${Math.random() * 100}%`,
-							top: `${Math.random() * 100}%`,
-							animationDelay: `${Math.random() * 3}s`,
-						}}
-					/>
-				))}
-			</div>
+			{/* <FloatingParticles /> */}
 
 			<div className="relative z-10 min-h-screen flex items-center justify-center p-6">
 				<div className="w-full max-w-md">
@@ -102,16 +105,6 @@ export default function SignUpPage() {
 						</CardHeader>
 
 						<CardContent className="space-y-6">
-							{error && (
-								<Alert
-									variant="destructive"
-									className="bg-red-900/20 border-red-900 text-red-300"
-								>
-									<AlertCircle className="h-4 w-4" />
-									<AlertDescription>{error}</AlertDescription>
-								</Alert>
-							)}
-
 							<form onSubmit={handleSubmit} className="space-y-4">
 								<div className="space-y-2">
 									<Label htmlFor="name" className="text-white">
@@ -162,13 +155,14 @@ export default function SignUpPage() {
 										<Input
 											id="password"
 											type="password"
-											placeholder="Create a password"
+											placeholder="Create a password (min 6 characters)"
 											value={formData.password}
 											onChange={(e) =>
 												setFormData({ ...formData, password: e.target.value })
 											}
 											className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-gray-400"
 											required
+											minLength={6}
 										/>
 									</div>
 								</div>
@@ -194,12 +188,22 @@ export default function SignUpPage() {
 											required
 										/>
 									</div>
+									{formData.password !== formData.confirmPassword &&
+										formData.confirmPassword && (
+											<p className="text-red-400 text-sm">
+												Passwords do not match
+											</p>
+										)}
 								</div>
 
 								<Button
 									type="submit"
 									className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white border-0 py-6"
-									disabled={isLoading}
+									disabled={
+										isLoading ||
+										formData.password !== formData.confirmPassword ||
+										formData.password.length < 6
+									}
 								>
 									{isLoading ? "Creating Account..." : "Create Account"}
 								</Button>
@@ -215,12 +219,9 @@ export default function SignUpPage() {
 							<Button
 								variant="outline"
 								className="w-full border-white/20 text-white hover:bg-white/10 py-6"
-								onClick={() => {
-									// We'll implement social login later
-									setError("Google login will be implemented soon");
-								}}
+								disabled
 							>
-								Continue with Google
+								Continue with Google (Coming Soon)
 							</Button>
 
 							<p className="text-center text-gray-400 text-sm">

@@ -1,39 +1,38 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
-// Define the shape of the context data
 interface DataContextType {
-	isVisible: boolean;
-	setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	activeCard: number;
-	setActiveCard: React.Dispatch<React.SetStateAction<number>>;
+	setActiveCard: (value: number | ((prev: number) => number)) => void;
+	isVisible: boolean;
+	setIsVisible: (value: boolean) => void;
 }
 
-// Create the context
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Create a provider component
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
-	const [isVisible, setIsVisible] = useState(false);
+export function DataProvider({ children }: { children: ReactNode }) {
 	const [activeCard, setActiveCard] = useState(0);
+	const [isVisible, setIsVisible] = useState(false);
 
 	return (
 		<DataContext.Provider
-			value={{ isVisible, setIsVisible, activeCard, setActiveCard }}
+			value={{
+				activeCard,
+				setActiveCard,
+				isVisible,
+				setIsVisible,
+			}}
 		>
 			{children}
 		</DataContext.Provider>
 	);
-};
+}
 
-// Custom hook to use the context
-export const useDataContext = () => {
+export function useDataContext() {
 	const context = useContext(DataContext);
-	if (!context) {
+	if (context === undefined) {
 		throw new Error("useDataContext must be used within a DataProvider");
 	}
 	return context;
-};
+}

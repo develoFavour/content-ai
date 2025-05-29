@@ -1,30 +1,44 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle, Rocket } from "lucide-react";
 import Link from "next/link";
-import React from "react";
-import { Button } from "../ui/button";
+import { ClientOnly } from "@/components/client-only";
 
-const Cta = () => {
+// Predefined animation values instead of random ones
+const GRID_ANIMATIONS = Array.from({ length: 64 }, (_, i) => ({
+	duration: 2 + (i % 3), // 2s, 3s, or 4s
+	delay: (i % 20) * 0.1, // 0s to 2s delay
+}));
+
+function AnimatedGrid() {
+	return (
+		<div className="absolute inset-0 opacity-10">
+			<div className="grid grid-cols-8 gap-4 h-full">
+				{GRID_ANIMATIONS.map((animation, i) => (
+					<div
+						key={i}
+						className="w-full aspect-square bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg"
+						style={{
+							animation: `pulse ${animation.duration}s ease-in-out infinite`,
+							animationDelay: `${animation.delay}s`,
+						}}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
+export default function Cta() {
 	return (
 		<section className="relative z-10 px-6 lg:px-12 py-32">
 			<div className="max-w-7xl mx-auto">
-				{/* Hexagonal Grid Background */}
 				<div className="relative">
-					<div className="absolute inset-0 opacity-10">
-						<div className="grid grid-cols-8 gap-4 h-full">
-							{[...Array(64)].map((_, i) => (
-								<div
-									key={i}
-									className="w-full aspect-square bg-gradient-to-br from-emerald-500 to-blue-500 rounded-lg"
-									style={{
-										animation: `pulse ${
-											2 + Math.random() * 3
-										}s ease-in-out infinite`,
-										animationDelay: `${Math.random() * 2}s`,
-									}}
-								/>
-							))}
-						</div>
-					</div>
+					{/* Animated Grid Background */}
+					<ClientOnly>
+						<AnimatedGrid />
+					</ClientOnly>
 
 					{/* Main CTA Content */}
 					<div className="relative bg-gradient-to-r from-gray-900/90 to-black/90 backdrop-blur-xl rounded-3xl border border-gray-800 overflow-hidden">
@@ -32,7 +46,7 @@ const Cta = () => {
 						<div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-blue-500 to-violet-500 rounded-3xl opacity-20 animate-pulse" />
 
 						<div className="relative p-16 text-center">
-							{/* Floating Elements */}
+							{/* Static Floating Elements */}
 							<div className="absolute top-8 left-8 w-4 h-4 bg-emerald-400 rounded-full animate-bounce" />
 							<div
 								className="absolute top-12 right-12 w-3 h-3 bg-blue-400 rounded-full animate-bounce"
@@ -121,6 +135,4 @@ const Cta = () => {
 			</div>
 		</section>
 	);
-};
-
-export default Cta;
+}

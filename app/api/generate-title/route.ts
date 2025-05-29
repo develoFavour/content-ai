@@ -1,9 +1,30 @@
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+type RequestBody = {
+	content: string;
+	contentType: string;
+};
+
+type ResponseBody = {
+	title?: string;
+	error?: string;
+};
+
+export async function POST(
+	req: NextRequest
+): Promise<NextResponse<ResponseBody>> {
 	try {
-		const { content, contentType } = await req.json();
+		const body: RequestBody = await req.json();
+		const { content, contentType } = body;
+
+		if (!content || !contentType) {
+			return NextResponse.json(
+				{ error: "Missing required fields: content and contentType" },
+				{ status: 400 }
+			);
+		}
 
 		const { text } = await generateText({
 			model: openai("gpt-4-turbo"),
@@ -16,11 +37,13 @@ export async function POST(req: Request) {
 			maxTokens: 50,
 		});
 
-		return Response.json({ title: text.trim() });
+		return NextResponse.json({ title: text.trim() });
 	} catch (error) {
 		console.error("Error generating title:", error);
-		return Response.json(
-			{ error: "Failed to generate title" },
+		const errorMessage =
+			error instanceof Error ? error.message : "Unknown error occurred";
+		return NextResponse.json(
+			{ error: "Failed to generate title: " + errorMessage },
 			{ status: 500 }
 		);
 	}

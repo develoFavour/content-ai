@@ -21,13 +21,54 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/app/context/auth-context";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const { user, signOut } = useAuth();
+	const { user, session, signOut, isLoading } = useAuth();
+	const router = useRouter();
+
+	useEffect(() => {
+		console.log("Dashboard Layout - Auth state:", {
+			user: !!user,
+			session: !!session,
+			isLoading,
+		});
+
+		// If not loading and no session, redirect to signin
+		if (!isLoading && !session) {
+			console.log("Dashboard Layout - No session, redirecting to signin");
+			router.push("/signin");
+		}
+	}, [user, session, isLoading, router]);
+
+	// Show loading while checking auth state
+	if (isLoading) {
+		return (
+			<div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+					<p className="text-gray-400">Loading...</p>
+				</div>
+			</div>
+		);
+	}
+
+	// Show loading if no session (will redirect)
+	if (!session || !user) {
+		return (
+			<div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+					<p className="text-gray-400">Authenticating...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<SidebarProvider>
@@ -88,9 +129,9 @@ export default function DashboardLayout({
 								</div>
 								<div>
 									<div className="text-sm font-medium">
-										{user?.email?.split("@")[0]}
+										{user.email?.split("@")[0]}
 									</div>
-									<div className="text-xs text-gray-400">{user?.email}</div>
+									<div className="text-xs text-gray-400">{user.email}</div>
 								</div>
 							</div>
 							<Button
