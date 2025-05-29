@@ -26,8 +26,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { saveContent } from "@/lib/database";
 import { useDashboardMetrics } from "@/hooks/use-dashboard-metric";
+import ReactMarkdown from "react-markdown";
+import { useAuth } from "../context/auth-context";
 
 export default function Dashboard() {
+	const { user } = useAuth();
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [generatedContent, setGeneratedContent] = useState("");
@@ -219,6 +222,7 @@ export default function Dashboard() {
 		return minutes + "m";
 	};
 
+	console.log("User", user);
 	return (
 		<div className="flex-1 overflow-auto">
 			<div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
@@ -444,9 +448,9 @@ export default function Dashboard() {
 											Content
 										</label>
 										<div className="bg-white/5 border border-white/20 rounded-lg p-3 sm:p-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-											<pre className="whitespace-pre-wrap text-xs sm:text-sm text-gray-200 font-mono leading-relaxed">
-												{generatedContent}
-											</pre>
+											<div className="prose prose-invert text-gray-200">
+												<ReactMarkdown>{generatedContent}</ReactMarkdown>
+											</div>
 										</div>
 									</div>
 
@@ -455,7 +459,7 @@ export default function Dashboard() {
 										<Button
 											onClick={copyToClipboard}
 											variant="outline"
-											className="flex-1 border-white/20 text-white hover:bg-white/10 text-sm"
+											className="flex-1 border-white/20 bg-black text-white hover:bg-white/10 text-sm"
 										>
 											<Copy className="h-4 w-4 mr-2" />
 											Copy
@@ -480,7 +484,7 @@ export default function Dashboard() {
 										<Button
 											onClick={exportContent}
 											variant="outline"
-											className="border-white/20 text-white hover:bg-white/10 text-sm"
+											className="border-white/20 bg-black text-white hover:bg-white/10 text-sm"
 										>
 											<Download className="h-4 w-4" />
 										</Button>

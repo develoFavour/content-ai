@@ -51,8 +51,8 @@ export async function POST(
 		const { text } = await generateText({
 			model: groqLlama370b(),
 			system:
-				"You are a title generation expert. Create a concise, engaging title for the provided content.",
-			prompt: `Generate a compelling title for this ${contentType} content: ${content.substring(
+				"You are a title generation expert. Create a concise, engaging, single-line title for the provided content.  The title should be short, engaging, and to the point and reflect the main idea or message of the content. Avoid using words like 'blog', 'post', 'email', or 'ad'.",
+			prompt: `Generate a compelling single-line title for this ${contentType} content: ${content.substring(
 				0,
 				500
 			)}...`,
