@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { saveContent } from "@/lib/database";
+import { useDashboardMetrics } from "@/hooks/use-dashboard-metric";
 
 export default function Dashboard() {
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -38,6 +39,9 @@ export default function Dashboard() {
 	const [tone, setTone] = useState("professional");
 	const [language, setLanguage] = useState("english");
 	const router = useRouter();
+
+	// Get real metrics
+	const metrics = useDashboardMetrics();
 
 	const contentTypes = [
 		{
@@ -143,7 +147,7 @@ export default function Dashboard() {
 			await navigator.clipboard.writeText(generatedContent);
 			toast.success("Content copied to clipboard! 📋");
 		} catch (error) {
-			console.error("Error copying content:", error);
+			console.log(error);
 			toast.error("Failed to copy content");
 		}
 	};
@@ -163,14 +167,16 @@ export default function Dashboard() {
 				content_type: contentType,
 				prompt: prompt.trim(),
 			});
-
+			console.log(data);
 			if (error) {
 				throw new Error(error);
 			}
-			console.log(data);
+
 			toast.success("Content saved successfully! 💾");
 
-			// Optionally redirect to content list after a delay
+			// Refresh metrics after saving
+			window.location.reload();
+
 			setTimeout(() => {
 				router.push("/dashboard/my-content");
 			}, 1500);
@@ -199,10 +205,24 @@ export default function Dashboard() {
 		toast.success("Content exported! 📄");
 	};
 
+	const formatNumber = (num: number) => {
+		if (num >= 1000) {
+			return (num / 1000).toFixed(1) + "K";
+		}
+		return num.toString();
+	};
+
+	const formatTime = (minutes: number) => {
+		if (minutes >= 60) {
+			return Math.round(minutes / 60) + "h";
+		}
+		return minutes + "m";
+	};
+
 	return (
 		<div className="flex-1 overflow-auto">
 			<div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
-				{/* Header Stats - Responsive Grid */}
+				{/* Header Stats - Real Metrics */}
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 					<Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border-emerald-500/20">
 						<CardContent className="p-3 sm:p-4">
@@ -212,7 +232,7 @@ export default function Dashboard() {
 										Generated
 									</p>
 									<p className="text-lg sm:text-2xl font-bold text-white">
-										127
+										{metrics.isLoading ? "..." : metrics.contentGenerated}
 									</p>
 								</div>
 								<Zap className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-400" />
@@ -228,7 +248,9 @@ export default function Dashboard() {
 										Words
 									</p>
 									<p className="text-lg sm:text-2xl font-bold text-white">
-										45.2K
+										{metrics.isLoading
+											? "..."
+											: formatNumber(metrics.wordsWritten)}
 									</p>
 								</div>
 								<TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
@@ -244,7 +266,7 @@ export default function Dashboard() {
 										Time Saved
 									</p>
 									<p className="text-lg sm:text-2xl font-bold text-white">
-										89h
+										{metrics.isLoading ? "..." : formatTime(metrics.timeSaved)}
 									</p>
 								</div>
 								<Clock className="h-6 w-6 sm:h-8 sm:w-8 text-violet-400" />
@@ -260,7 +282,7 @@ export default function Dashboard() {
 										Success
 									</p>
 									<p className="text-lg sm:text-2xl font-bold text-white">
-										94%
+										{metrics.isLoading ? "..." : `${metrics.successRate}%`}
 									</p>
 								</div>
 								<Target className="h-6 w-6 sm:h-8 sm:w-8 text-orange-400" />
