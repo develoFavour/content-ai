@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { groqLlama370b } from "@/lib/groq";
 import { generateText } from "ai";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -11,6 +11,20 @@ type ResponseBody = {
 	title?: string;
 	error?: string;
 };
+
+function generateFallbackTitle(content: string, contentType: string): string {
+	const firstLine = content.split("\n")[0].replace(/[#*]/g, "").trim();
+	const words = firstLine.split(" ").slice(0, 8).join(" ");
+
+	const typePrefix = {
+		blog: "Blog: ",
+		social: "Post: ",
+		email: "Email: ",
+		ad: "Ad: ",
+	};
+
+	return (typePrefix[contentType as keyof typeof typePrefix] || "") + words;
+}
 
 export async function POST(
 	req: NextRequest
@@ -26,8 +40,16 @@ export async function POST(
 			);
 		}
 
+		// Check if Groq API key is available
+		if (!process.env.GROQ_API_KEY) {
+			console.warn("Groq API key not found, using fallback title generation");
+
+			const fallbackTitle = generateFallbackTitle(content, contentType);
+			return NextResponse.json({ title: fallbackTitle });
+		}
+
 		const { text } = await generateText({
-			model: openai("gpt-4-turbo"),
+			model: groqLlama370b(),
 			system:
 				"You are a title generation expert. Create a concise, engaging title for the provided content.",
 			prompt: `Generate a compelling title for this ${contentType} content: ${content.substring(
@@ -40,11 +62,11 @@ export async function POST(
 		return NextResponse.json({ title: text.trim() });
 	} catch (error) {
 		console.error("Error generating title:", error);
-		const errorMessage =
-			error instanceof Error ? error.message : "Unknown error occurred";
-		return NextResponse.json(
-			{ error: "Failed to generate title: " + errorMessage },
-			{ status: 500 }
-		);
+
+		// Fallback to simple title generation
+		const { content, contentType } = await req.json();
+		const fallbackTitle = generateFallbackTitle(content, contentType);
+
+		return NextResponse.json({ title: fallbackTitle });
 	}
 }
